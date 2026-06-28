@@ -12197,7 +12197,7 @@ kill -TERM 1234</pre></div>
         <div class="faq-body">
           <ol class="steps">
             <li>Open the Dashboard and watch the yellow Builder update banner at the top.</li>
-            <li>Run Builder against the same install folder so it can download the newest <code>Server.zip</code> for you.</li>
+            <li>Run Builder against the same install folder so it can download the newest <code>Server-Portable.zip</code> for you.</li>
             <li>Builder stops the running server, replaces the code files, keeps <code>config.yml</code>, <code>.env</code>, <code>data/</code>, and <code>backups/</code>, and runs database migration automatically if the backend changed.</li>
             <li>Start the server again with <code>run.bat</code> or <code>./run.sh</code>.</li>
           </ol>
