@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KeyBase Tester</title>
+<style>
+:root {
+  --bg:     #0d1117;
+  --p1:     #161b22;
+  --p2:     #1c2128;
+  --p3:     #21262d;
+  --b:      #30363d;
+  --b2:     #3d444d;
+  --ac:     #2f81f7;
+  --cyan:   #39c5cf;
+  --text:   #e6edf3;
+  --sub:    #7d8590;
+  --green:  #3fb950;
+  --red:    #f85149;
+  --warn:   #d29922;
+  --purple: #a371f7;
+  --r: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+
+/* inputs */
+input, select, textarea {
+  background: var(--p3);
+  border: 1px solid var(--b);
+  border-radius: var(--r);
+  padding: 6px 10px;
+  color: var(--text);
+  font: inherit;
+  width: 100%;
+  transition: border-color .15s;
+}
+input:focus, select:focus { outline: none; border-color: var(--ac); }
+input::placeholder { color: var(--sub); }
+input[readonly] { color: var(--sub); cursor: default; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+select option { background: var(--p2); }
+
+/* ── TOPBAR ──────────────────────────────────────────────── */
+.top {
+  height: 52px;
+  background: var(--p1);
+  border-bottom: 1px solid var(--b);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  flex-shrink: 0;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--cyan);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; color: #06202a;
+  flex-shrink: 0;
+}
+.url-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--p3);
+  border: 1px solid var(--b);
+  border-radius: var(--r);
+  padding: 0 10px;
+  gap: 6px;
+  transition: border-color .15s;
+}
+.url-wrap:focus-within { border-color: var(--ac); }
+.url-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sub);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.url-input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  font-size: 12px;
+}
+.url-input:focus { outline: none; border: none; }
+.token-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.token-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--sub);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.token-input {
+  width: 180px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 11.5px;
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sub);
+  flex-shrink: 0;
+  transition: background .3s;
+}
+.status-dot.ok   { background: var(--green); }
+.status-dot.err  { background: var(--red); box-shadow: 0 0 0 2px rgba(248,81,73,.2); }
+.status-dot.spin { background: var(--warn); animation: pulse .9s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px;
+  border-radius: var(--r);
+  font: 500 12.5px inherit;
+  cursor: pointer;
+  border: none;
+  transition: all .12s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn:active { transform: scale(.97); }
+.b-ac   { background: var(--ac); color: #fff; }
+.b-ac:hover { background: #388bfd; }
+.b-cy   { background: var(--cyan); color: #06202a; font-weight: 600; }
+.b-cy:hover { background: #45d4df; }
+.b-gh   { background: transparent; border: 1px solid var(--b2); color: var(--sub); }
+.b-gh:hover { color: var(--text); border-color: var(--b2); background: var(--p3); }
+.b-red  { background: rgba(248,81,73,.12); border: 1px solid rgba(248,81,73,.3); color: var(--red); }
+.b-red:hover { background: rgba(248,81,73,.22); }
+.b-warn { background: rgba(210,153,34,.12); border: 1px solid rgba(210,153,34,.3); color: var(--warn); }
+.b-warn:hover { background: rgba(210,153,34,.22); }
+.b-ok   { background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.3); color: var(--green); }
+.b-ok:hover { background: rgba(63,185,80,.22); }
+.b-pu   { background: rgba(163,113,247,.12); border: 1px solid rgba(163,113,247,.3); color: var(--purple); }
+.b-pu:hover { background: rgba(163,113,247,.22); }
+.b-sm { padding: 4px 10px; font-size: 11.5px; }
+.b-xs { padding: 2px 7px; font-size: 10.5px; }
+
+/* ── BODY LAYOUT ─────────────────────────────────────────── */
+.body { display: grid; grid-template-columns: 195px 1fr; flex: 1; min-height: 0; }
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.sb {
+  background: var(--p1);
+  border-right: 1px solid var(--b);
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sb-sec h4 {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--sub);
+  margin-bottom: 8px;
+}
+.id-row { margin-bottom: 8px; }
+.id-row .lbl { font-size: 10.5px; color: var(--sub); margin-bottom: 3px; }
+.id-row .row { display: flex; gap: 3px; align-items: center; }
+.id-row .row input {
+  flex: 1; min-width: 0;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 10px;
+  padding: 4px 6px;
+}
+.sf-field { display: flex; flex-direction: column; gap: 3px; }
+.sf-field label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--sub); }
+.div { height: 1px; background: var(--b); }
+.k-box .k-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: rgba(57,197,207,.07);
+  border: 1px solid rgba(57,197,207,.18);
+  border-radius: 5px;
+  padding: 5px 7px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 9.5px;
+  color: var(--cyan);
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: background .1s;
+}
+.k-box .k-item:hover { background: rgba(57,197,207,.13); }
+.k-box .k-item span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-empty { font-size: 11px; color: var(--sub); }
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.content { display: flex; flex-direction: column; overflow: hidden; }
+
+/* tabs */
+.tabs-bar {
+  background: var(--p1);
+  border-bottom: 1px solid var(--b);
+  display: flex;
+  flex-shrink: 0;
+  overflow-x: auto;
+  padding: 0 4px;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--sub);
+  padding: 12px 16px;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.on { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+/* panels */
+.panels { flex: 1; overflow-y: auto; }
+.panel { display: none; padding: 16px; }
+.panel.on { display: block; }
+.panel-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--sub);
+  margin-bottom: 14px;
+}
+
+/* form grid */
+.fg { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.fg.tight { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.s2 { grid-column: span 2; }
+.s3 { grid-column: span 3; }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.f > label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--sub); }
+.f .hint { font-size: 9.5px; color: var(--sub); margin-top: 1px; }
+.fa { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+.sep { height: 1px; background: var(--b); margin: 16px 0; }
+
+/* endpoint pills */
+.ep-bar { display: flex; gap: 5px; margin-bottom: 14px; }
+.ep-pill {
+  padding: 4px 13px;
+  border-radius: 100px;
+  font-size: 11.5px;
+  font-weight: 500;
+  border: 1px solid var(--b);
+  background: var(--p3);
+  color: var(--sub);
+  cursor: pointer;
+  transition: all .12s;
+}
+.ep-pill.on {
+  background: rgba(57,197,207,.1);
+  border-color: rgba(57,197,207,.4);
+  color: var(--cyan);
+}
+
+/* manage sections */
+.msec { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--b); }
+.msec:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.msec-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--sub);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.msec-hdr::after { content: ''; flex: 1; height: 1px; background: var(--b); }
+
+/* ── BOTTOM ──────────────────────────────────────────────── */
+.bottom { flex-shrink: 0; }
+
+/* response */
+.resp-wrap { border-top: 1px solid var(--b); background: var(--p1); }
+.resp-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--b);
+}
+.resp-hdr .label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--sub); }
+.badge {
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.badge.ok  { background: rgba(63,185,80,.15);  color: var(--green); }
+.badge.err { background: rgba(248,81,73,.15);  color: var(--red); }
+.resp-ms { font-size: 11px; color: var(--sub); }
+.spacer { flex: 1; }
+.resp-body {
+  padding: 10px 14px;
+  font: 11px/1.8 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
+  color: var(--sub);
+}
+.resp-body.live { color: var(--text); }
+
+/* json colors */
+.jk  { color: var(--purple); }
+.jv  { color: var(--green); }
+.jb  { color: var(--warn); }
+.jn  { color: var(--sub); }
+.jnu { color: var(--cyan); }
+
+/* log */
+.log-bar {
+  border-top: 1px solid var(--b);
+  background: var(--p1);
+}
+.log-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--b);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  color: var(--sub);
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: color .12s;
+  text-align: left;
+}
+.log-toggle:hover { color: var(--text); }
+.log-cnt {
+  background: var(--p3);
+  border: 1px solid var(--b);
+  border-radius: 100px;
+  padding: 0 7px;
+  font-size: 10px;
+}
+.log-list { display: none; max-height: 130px; overflow-y: auto; }
+.log-list.on { display: block; }
+.log-row {
+  display: grid;
+  grid-template-columns: 165px 32px 50px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 14px;
+  border-bottom: 1px solid var(--b);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background .1s;
+}
+.log-row:hover { background: var(--p2); }
+.log-ep { font-family: 'Cascadia Code', Consolas, monospace; color: var(--cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-ok { color: var(--green); }
+.log-er { color: var(--red); }
+.log-ms { color: var(--sub); }
+.log-ts { color: var(--sub); font-size: 10px; text-align: right; }
+.log-empty { padding: 8px 14px; color: var(--sub); font-size: 11.5px; }
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toasts {
+  position: fixed; bottom: 14px; right: 14px;
+  display: flex; flex-direction: column; gap: 5px;
+  z-index: 9999; pointer-events: none;
+}
+.toast {
+  background: var(--p2);
+  border: 1px solid var(--b2);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  animation: tin .18s ease;
+  pointer-events: auto;
+}
+.toast .ic { font-size: 12px; }
+.toast.ok .ic  { color: var(--green); }
+.toast.err .ic { color: var(--red); }
+@keyframes tin { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+
+/* ── MISC ────────────────────────────────────────────────── */
+.mono { font-family: 'Cascadia Code', Consolas, monospace; }
+.dur-row { display: flex; gap: 6px; }
+.dur-row input { width: 100px; flex: 0 0 auto; }
+.dur-row select { flex: 1; }
+.pass-row { display: flex; gap: 6px; }
+.pass-row input { flex: 1; }
+
+@media (max-width: 600px) {
+  .body { grid-template-columns: 1fr; }
+  .sb { max-height: 160px; border-right: none; border-bottom: 1px solid var(--b); }
+}
+</style>
+</head>
+<body>
+
+<div id="toasts"></div>
+
+<!-- ══ TOPBAR ══════════════════════════════════════════════ -->
+<div class="top">
+  <div class="logo">
+    <div class="logo-icon">K</div>
+    KeyBase
+  </div>
+
+  <div class="url-wrap">
+    <span class="url-label">Admin <span style="font-size:8px;opacity:.6">API</span></span>
+    <input class="url-input" id="url-admin" placeholder="http://127.0.0.1:8080" autocomplete="off" spellcheck="false" oninput="qsave()">
+  </div>
+
+  <div class="url-wrap">
+    <span class="url-label">API <span style="font-size:8px;opacity:.6">client</span></span>
+    <input class="url-input" id="url-api" placeholder="http://127.0.0.1:8080" autocomplete="off" spellcheck="false" oninput="qsave()">
+  </div>
+
+  <div class="token-wrap">
+    <span class="token-label">Header</span>
+    <input id="hdr-name" placeholder="X-KeyBase-Provision-Key" autocomplete="off" oninput="qsave()" style="width:200px;font-family:monospace;font-size:11px">
+    <span class="token-label" style="margin-left:6px">Token</span>
+    <input class="token-input" id="tok" type="password" placeholder="kb-prov-…" autocomplete="off" oninput="qsave()" style="width:150px">
+    <button class="btn b-gh b-sm" onclick="eyeTok()" id="eye">👁</button>
+  </div>
+
+  <button class="btn b-cy b-sm" onclick="connect()">⚡ Connect</button>
+  <span class="status-dot" id="dot" title="Connection status"></span>
+</div>
+
+<!-- ══ BODY ════════════════════════════════════════════════ -->
+<div class="body">
+
+  <!-- ── SIDEBAR ────────────────────────────── -->
+  <div class="sb">
+    <div class="sb-sec">
+      <h4>Identity</h4>
+      <div class="id-row">
+        <div class="lbl">HWID</div>
+        <div class="row">
+          <input id="hwid" readonly>
+          <button class="btn b-gh b-xs" onclick="cp('hwid')">⎘</button>
+          <button class="btn b-gh b-xs" onclick="regenHwid()" title="Regenerate">↺</button>
+        </div>
+      </div>
+      <div class="id-row">
+        <div class="lbl">Public IP</div>
+        <div class="row">
+          <input id="myip" readonly placeholder="detecting…">
+          <button class="btn b-gh b-xs" onclick="cp('myip')">⎘</button>
+          <button class="btn b-gh b-xs" id="ipbtn" onclick="detectIp()">↺</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="div"></div>
+
+    <div class="sb-sec">
+      <h4>Shared</h4>
+      <div class="sf-field">
+        <label>App ID</label>
+        <input id="app" value="default" oninput="qsave()">
+      </div>
+    </div>
+
+    <div class="div"></div>
+
+    <div class="sb-sec">
+      <h4>Provisioned</h4>
+      <div class="k-box" id="kbox">
+        <div class="k-empty">No keys yet</div>
+      </div>
+      <div style="font-size:10px;color:var(--sub);margin-top:4px">Click → fill all key fields</div>
+    </div>
+  </div>
+
+  <!-- ── CONTENT ────────────────────────────── -->
+  <div class="content">
+
+    <div class="tabs-bar">
+      <button class="tab-btn on" onclick="tab('provision',this)">Provision</button>
+      <button class="tab-btn"    onclick="tab('verify',this)">Verify / Activate / Check</button>
+      <button class="tab-btn"    onclick="tab('keyinfo',this)">Key Info</button>
+      <button class="tab-btn"    onclick="tab('manage',this)">Manage Key</button>
+    </div>
+
+    <div class="panels">
+
+      <!-- ── PROVISION ───────────────────── -->
+      <div class="panel on" id="pan-provision">
+        <div class="panel-title">Provision key</div>
+        <div class="fg">
+          <div class="f">
+            <label>Count</label>
+            <input id="p-n" type="number" min="1" value="1">
+            <span class="hint">Keys to generate</span>
+          </div>
+          <div class="f">
+            <label>Prefix</label>
+            <input id="p-pfx" placeholder="auto">
+          </div>
+          <div class="f">
+            <label>Max devices</label>
+            <input id="p-dev" type="number" min="1" value="1">
+          </div>
+          <div class="f">
+            <label>Sub level</label>
+            <input id="p-sub" type="number" min="1" value="1">
+          </div>
+          <div class="f s2">
+            <label>Duration</label>
+            <div class="dur-row">
+              <input id="p-dv" type="number" min="1" placeholder="∞ lifetime">
+              <select id="p-du">
+                <option value="">lifetime</option>
+                <option>hours</option><option>days</option>
+                <option>weeks</option><option>months</option><option>years</option>
+              </select>
+            </div>
+          </div>
+          <div class="f">
+            <label>Note</label>
+            <input id="p-note" placeholder="optional">
+          </div>
+          <div class="f">
+            <label>Order ID</label>
+            <input id="p-ord" placeholder="optional">
+          </div>
+          <div class="f">
+            <label>Customer ID</label>
+            <input id="p-cust" placeholder="optional">
+          </div>
+        </div>
+        <div class="fa">
+          <button class="btn b-cy" onclick="doProvision()">⚡ Provision</button>
+        </div>
+      </div>
+
+      <!-- ── VERIFY ──────────────────────── -->
+      <div class="panel" id="pan-verify">
+        <div class="panel-title">Verify / Activate / Check</div>
+        <div class="ep-bar">
+          <button class="ep-pill on" onclick="setEp('verify',this)">/verify</button>
+          <button class="ep-pill"    onclick="setEp('activate',this)">/activate</button>
+          <button class="ep-pill"    onclick="setEp('check',this)">/check</button>
+        </div>
+        <div class="fg">
+          <div class="f s2">
+            <label>License key</label>
+            <input id="v-key" placeholder="XXXX-XXXX-XXXX-XXXX" class="mono">
+          </div>
+          <div class="f">
+            <label>Version</label>
+            <input id="v-ver" value="1.0.0">
+          </div>
+          <div class="f">
+            <label>Override HWID</label>
+            <input id="v-hwid" placeholder="blank = auto">
+          </div>
+          <div class="f">
+            <label>Override IP</label>
+            <input id="v-ip" placeholder="blank = auto">
+          </div>
+        </div>
+        <div class="fa">
+          <button class="btn b-cy" id="vbtn" onclick="doVerify()">⚡ Verify</button>
+        </div>
+      </div>
+
+      <!-- ── KEY INFO ─────────────────────── -->
+      <div class="panel" id="pan-keyinfo">
+        <div class="panel-title">Key info</div>
+        <div class="fg">
+          <div class="f s2">
+            <label>License key</label>
+            <input id="i-key" placeholder="XXXX-XXXX-XXXX-XXXX" class="mono">
+          </div>
+        </div>
+        <div class="fa">
+          <button class="btn b-cy" onclick="doKeyInfo()">⚡ Get info</button>
+        </div>
+      </div>
+
+      <!-- ── MANAGE ───────────────────────── -->
+      <div class="panel" id="pan-manage">
+        <div class="panel-title">Manage key</div>
+
+        <!-- shared key input -->
+        <div class="f">
+          <label>License key</label>
+          <input id="m-key" placeholder="XXXX-XXXX-XXXX-XXXX" class="mono">
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="msec">
+          <div class="msec-hdr">Actions</div>
+          <div class="fg tight">
+            <div class="f s2">
+              <label>Reason</label>
+              <input id="m-rsn" placeholder="optional, shown in audit log">
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-warn" onclick="act('suspend')">⏸ Suspend</button>
+            <button class="btn b-ok"   onclick="act('resume')">▶ Resume</button>
+            <button class="btn b-red"  onclick="act('revoke')">✕ Revoke</button>
+            <button class="btn b-red"  onclick="act('delete')" style="opacity:.65">🗑 Delete</button>
+          </div>
+        </div>
+
+        <!-- UPDATE -->
+        <div class="msec">
+          <div class="msec-hdr">Update fields</div>
+          <div class="fg tight">
+            <div class="f">
+              <label>Note</label>
+              <input id="m-note" placeholder="new value">
+            </div>
+            <div class="f">
+              <label>Max devices</label>
+              <input id="m-dev" type="number" min="1" placeholder="unchanged">
+            </div>
+            <div class="f">
+              <label>Sub level</label>
+              <input id="m-sub" type="number" min="1" placeholder="unchanged">
+            </div>
+            <div class="f">
+              <label>Custom data (JSON)</label>
+              <input id="m-cust" placeholder='{"plan":"pro"}'>
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-pu" onclick="doUpdate()">✎ Update</button>
+          </div>
+        </div>
+
+        <!-- SECRET -->
+        <div class="msec">
+          <div class="msec-hdr">Key secret</div>
+          <div class="fg tight">
+            <div class="f s2">
+              <label>Secret</label>
+              <div class="pass-row">
+                <input id="m-sec" type="password" placeholder="new secret">
+                <button class="btn b-gh b-sm" onclick="genSec()">⚡ Gen</button>
+              </div>
+              <span class="hint">Clients must send this when verifying</span>
+            </div>
+            <div class="f">
+              <label>Confirm</label>
+              <input id="m-sec2" type="password" placeholder="repeat">
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-pu"  onclick="doSetSec()">🔐 Set secret</button>
+            <button class="btn b-red" onclick="doClearSec()">✕ Clear</button>
+          </div>
+        </div>
+
+        <!-- EXTEND -->
+        <div class="msec">
+          <div class="msec-hdr">Extend expiry</div>
+          <div class="fg tight">
+            <div class="f">
+              <label>Add duration</label>
+              <div class="dur-row">
+                <input id="m-ev" type="number" min="1" placeholder="amount">
+                <select id="m-eu">
+                  <option>hours</option><option selected>days</option>
+                  <option>weeks</option><option>months</option><option>years</option>
+                </select>
+              </div>
+            </div>
+            <div class="f">
+              <label>Or set exact date</label>
+              <input id="m-eabs" type="datetime-local">
+              <span class="hint">Overrides duration above</span>
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-ok" onclick="doExtend()">⏱ Extend</button>
+          </div>
+        </div>
+
+        <!-- DEVICES -->
+        <div class="msec">
+          <div class="msec-hdr">Device management</div>
+          <div class="fg tight">
+            <div class="f">
+              <label>Specific HWID</label>
+              <input id="m-dhw" placeholder="blank = reset ALL">
+            </div>
+            <div class="f">
+              <label>Device slot index</label>
+              <input id="m-didx" type="number" min="0" placeholder="optional">
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-warn" onclick="doResetDev()">↺ Reset devices</button>
+            <button class="btn b-red"  onclick="doRemoveDev()">✕ Remove device</button>
+          </div>
+        </div>
+
+        <!-- TRANSFER -->
+        <div class="msec">
+          <div class="msec-hdr">Transfer / Clone</div>
+          <div class="fg tight">
+            <div class="f">
+              <label>Target app ID</label>
+              <input id="m-tapp" placeholder="for transfer">
+            </div>
+            <div class="f">
+              <label>New key (clone)</label>
+              <input id="m-ckey" placeholder="blank = auto-generate" class="mono">
+            </div>
+          </div>
+          <div class="fa">
+            <button class="btn b-pu" onclick="doTransfer()">↪ Transfer</button>
+            <button class="btn b-gh" onclick="doClone()">⧉ Clone</button>
+          </div>
+        </div>
+
+      </div><!-- /pan-manage -->
+
+    </div><!-- /panels -->
+
+    <!-- ── BOTTOM ──────────────────────────── -->
+    <div class="bottom">
+      <div class="resp-wrap">
+        <div class="resp-hdr">
+          <span class="label">Response</span>
+          <span id="rbadge"></span>
+          <span class="resp-ms" id="rms"></span>
+          <div class="spacer"></div>
+          <button class="btn b-gh b-xs" onclick="cpResp()">⎘ Copy</button>
+          <button class="btn b-gh b-xs" onclick="clrResp()" style="margin-left:3px">Clear</button>
+        </div>
+        <pre class="resp-body" id="rb">(no response yet)</pre>
+      </div>
+
+      <div class="log-bar">
+        <button class="log-toggle" onclick="togLog()">
+          <span id="larr">▶</span>
+          Log
+          <span class="log-cnt" id="lcnt">0</span>
+          <div class="spacer"></div>
+          <span onclick="event.stopPropagation()">
+            <button class="btn b-gh b-xs" onclick="clrLog()">Clear</button>
+          </span>
+        </button>
+        <div class="log-list" id="llist">
+          <div class="log-empty" id="lempty">No requests yet</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /body -->
+
+<script>
+'use strict';
+// ── Core ──────────────────────────────────────────────────────────
+var curEp = 'verify', reqlog = [], lastRaw = '';
+var $ = function(id){ return document.getElementById(id); };
+function cleanBase(value){ return (value || '').trim().replace(/\/+$/,''); }
+var adminBase = function(){ return cleanBase($('url-admin').value); };
+var apiBase   = function(){ return cleanBase($('url-api').value); };
+var prov = function(){ return $('tok').value.trim(); };
+var hdr  = function(){ return $('hdr-name').value.trim() || 'X-KeyBase-Provision-Key'; };
+var app  = function(){ return $('app').value.trim() || 'default'; };
+var mkey = function(){ return $('m-key').value.trim(); };
+
+function needAdmin(){ if(!adminBase()){ toast('Admin URL not set','err'); return false; } return true; }
+function needApi()  { if(!apiBase())  { toast('API URL not set','err');   return false; } return true; }
+
+// ── Persist ───────────────────────────────────────────────────────
+function qsave(){
+  localStorage.setItem('kb_cfg', JSON.stringify({
+    admin: $('url-admin').value, api: $('url-api').value,
+    tok: $('tok').value, app: $('app').value,
+    hdr: $('hdr-name').value
+  }));
+}
+function loadCfg(){
+  var s = localStorage.getItem('kb_cfg');
+  if(!s) return;
+  var c = JSON.parse(s);
+  if(c.admin) $('url-admin').value  = c.admin;
+  if(c.api)   $('url-api').value    = c.api;
+  if(c.tok)   $('tok').value        = c.tok;
+  if(c.app)   $('app').value        = c.app;
+  if(c.hdr)   $('hdr-name').value   = c.hdr;
+}
+function eyeTok(){
+  var el = $('tok');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+function toast(msg, type){
+  var c = $('toasts'), el = document.createElement('div');
+  el.className = 'toast ' + (type||'');
+  el.innerHTML = '<span class="ic">' + (type==='ok'?'✓':type==='err'?'✕':'ℹ') + '</span>' + msg;
+  c.appendChild(el);
+  setTimeout(function(){
+    el.style.opacity = '0'; el.style.transition = 'opacity .2s';
+    setTimeout(function(){ el.remove(); }, 220);
+  }, 2200);
+}
+function cp(id){
+  var v = $(id).value;
+  if(!v) return;
+  navigator.clipboard.writeText(v).then(function(){ toast('Copied!', 'ok'); });
+}
+function cpResp(){
+  if(!lastRaw) return;
+  navigator.clipboard.writeText(lastRaw).then(function(){ toast('Copied!', 'ok'); });
+}
+
+// ── JSON highlight ────────────────────────────────────────────────
+function hjson(s){
+  return s
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"([^"]+)"(\s*:)/g, '<span class="jk">"$1"</span>$2')
+    .replace(/:\s*"([^"]*)"/g, function(m,v){ return ': <span class="jv">"'+v+'"</span>'; })
+    .replace(/:\s*(true|false)/g, ': <span class="jb">$1</span>')
+    .replace(/:\s*null/g, ': <span class="jn">null</span>')
+    .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="jnu">$1</span>');
+}
+
+// ── Response ──────────────────────────────────────────────────────
+function showR(data, ok, ms){
+  lastRaw = JSON.stringify(data, null, 2);
+  $('rb').className = 'resp-body live';
+  $('rb').innerHTML = hjson(lastRaw);
+  $('rbadge').innerHTML = '<span class="badge '+(ok?'ok':'err')+'">'+(ok?'✓ OK':'✕ Error')+'</span>';
+  $('rms').textContent = ms + 'ms';
+}
+function showFail(msg){
+  lastRaw = msg;
+  $('rb').className = 'resp-body live';
+  $('rb').textContent = msg;
+  $('rbadge').innerHTML = '<span class="badge err">✕ Failed</span>';
+  $('rms').textContent = '';
+}
+function clrResp(){
+  $('rb').className = 'resp-body'; $('rb').textContent = '(no response yet)';
+  $('rbadge').innerHTML = ''; $('rms').textContent = ''; lastRaw = '';
+}
+
+// ── Log ───────────────────────────────────────────────────────────
+function addLog(ep, ok, ms, data){
+  reqlog.unshift({ep:ep, ok:ok, ms:ms, data:data, t:new Date().toLocaleTimeString()});
+  if(reqlog.length > 80) reqlog.pop();
+  renderLog();
+}
+function renderLog(){
+  $('lcnt').textContent = reqlog.length;
+  var list = $('llist');
+  list.querySelectorAll('.log-row').forEach(function(r){ r.remove(); });
+  $('lempty').style.display = reqlog.length ? 'none' : '';
+  reqlog.forEach(function(r){
+    var el = document.createElement('div');
+    el.className = 'log-row';
+    el.innerHTML =
+      '<span class="log-ep">'+r.ep+'</span>' +
+      '<span class="'+(r.ok?'log-ok':'log-er')+'">'+(r.ok?'✓':'✕')+'</span>' +
+      '<span class="log-ms">'+r.ms+'ms</span>' +
+      '<span class="log-ts">'+r.t+'</span>';
+    el.onclick = function(){
+      lastRaw = JSON.stringify(r.data, null, 2);
+      $('rb').innerHTML = hjson(lastRaw);
+      $('rb').className = 'resp-body live';
+    };
+    list.insertBefore(el, $('lempty'));
+  });
+}
+function clrLog(){ reqlog = []; renderLog(); }
+function togLog(){
+  var l=$('llist'), a=$('larr');
+  l.classList.toggle('on');
+  a.textContent = l.classList.contains('on') ? '▼' : '▶';
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────
+function localProxyBase(){
+  if(location.protocol !== 'http:' && location.protocol !== 'https:') return '';
+  return location.origin;
+}
+function sameOrigin(base){
+  try { return new URL(base || '/', location.href).origin === location.origin; }
+  catch(e){ return false; }
+}
+function requestHeaders(base, body, viaProxy){
+  var headers = {};
+  if(body) headers['Content-Type'] = 'application/json';
+  if(viaProxy && base){
+    headers['X-KeyBase-Target-Base'] = base;
+    headers['X-KeyBase-Forward-Header-Name'] = hdr();
+    headers['X-KeyBase-Forward-Header-Value'] = prov();
+  } else {
+    headers[hdr()] = prov();
+  }
+  return headers;
+}
+async function requestJson(base, path, body, method, opts){
+  method = method || 'POST';
+  opts = opts || {};
+  base = cleanBase(base);
+  var proxy = localProxyBase();
+  var useProxyFirst = proxy && base && !sameOrigin(base);
+  var attempts = useProxyFirst ? ['proxy', 'direct'] : ['direct'];
+  if(proxy && attempts.indexOf('proxy') < 0) attempts.push('proxy');
+  var lastErr = null;
+  for(var i=0; i<attempts.length; i++){
+    var viaProxy = attempts[i] === 'proxy';
+    var url = viaProxy ? proxy + path : base + path;
+    if(!viaProxy && !base) continue;
+    try{
+      var r = await fetch(url, {
+        method: method,
+        headers: requestHeaders(base, body, viaProxy),
+        body: body ? JSON.stringify(body) : undefined,
+        signal: opts.timeout ? AbortSignal.timeout(opts.timeout) : undefined
+      });
+      var text = await r.text();
+      var data = text ? JSON.parse(text) : {};
+      return {response:r, data:data, via:attempts[i]};
+    } catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('Request failed');
+}
+async function kfetch(base, path, body, method){
+  var t = Date.now();
+  try {
+    var res = await requestJson(base, path, body, method);
+    var data = res.data;
+    var ms = Date.now()-t;
+    var ok = data.ok !== false;
+    showR(data, ok, ms);
+    addLog(path, ok, ms, data);
+    return data;
+  } catch(e) {
+    var ms = Date.now()-t;
+    showFail('Error: ' + e.message);
+    addLog(path, false, ms, {error: e.message});
+    return null;
+  }
+}
+
+// ── Connect ───────────────────────────────────────────────────────
+async function connect(){
+  var dot = $('dot');
+  dot.className = 'status-dot spin';
+  var urls = [adminBase(), apiBase()].filter(Boolean);
+  if(!urls.length){ dot.className='status-dot err'; toast('Enter at least one URL','err'); return; }
+  var ok = false;
+  for(var base of urls){
+    for(var p of ['/api/v1/health', '/']){
+      try{
+        var res = await requestJson(base, p, null, 'GET', {timeout:3500});
+        if(res.response.status < 500 && res.data.ok !== false){ ok = true; break; }
+      } catch(e){}
+    }
+    if(ok) break;
+  }
+  dot.className = 'status-dot ' + (ok ? 'ok' : 'err');
+  toast(ok ? 'Connected' : 'Not reachable', ok ? 'ok' : 'err');
+}
+
+// ── HWID ──────────────────────────────────────────────────────────
+function genH(){
+  var a = new Uint8Array(16);
+  crypto.getRandomValues(a);
+  return Array.from(a).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+function loadHwid(){
+  var h = localStorage.getItem('kb_hwid');
+  if(!h){ h = genH(); localStorage.setItem('kb_hwid', h); }
+  $('hwid').value = h;
+}
+function regenHwid(){
+  var h = genH();
+  localStorage.setItem('kb_hwid', h);
+  $('hwid').value = h;
+  toast('HWID regenerated', 'ok');
+}
+
+// ── IP ────────────────────────────────────────────────────────────
+async function detectIp(){
+  var el=$('myip'), btn=$('ipbtn');
+  el.value=''; el.placeholder='…'; btn.textContent='⏳';
+  for(var u of ['https://api4.ipify.org','https://ipv4.icanhazip.com','https://v4.ident.me']){
+    try{
+      var r = await fetch(u, {signal:AbortSignal.timeout(4000)});
+      var ip = (await r.text()).trim();
+      if(ip && ip.length < 40){ el.value=ip; el.placeholder=''; btn.textContent='↺'; return; }
+    } catch(e){}
+  }
+  el.placeholder='failed'; btn.textContent='↺';
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────
+function tab(name, btn){
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('on'); });
+  $('pan-'+name).classList.add('on');
+  btn.classList.add('on');
+}
+function setEp(ep, el){
+  curEp = ep;
+  document.querySelectorAll('.ep-pill').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  $('vbtn').textContent = '⚡ ' + ep.charAt(0).toUpperCase() + ep.slice(1);
+}
+
+// ── Key fill ──────────────────────────────────────────────────────
+function fillKey(k){
+  $('v-key').value = k;
+  $('i-key').value = k;
+  $('m-key').value = k;
+  toast('Key filled in all tabs', 'ok');
+}
+
+// ── PROVISION ─────────────────────────────────────────────────────
+async function doProvision(){
+  if(!needAdmin()) return;
+  var body = {
+    app_id: app(),
+    count:  parseInt($('p-n').value)||1,
+    max_devices: parseInt($('p-dev').value)||1,
+    subscription_level: parseInt($('p-sub').value)||1,
+  };
+  var pfx=$('p-pfx').value.trim(); if(pfx) body.prefix=pfx;
+  var dv=$('p-dv').value.trim(), du=$('p-du').value;
+  if(dv&&du){ body.duration_value=parseInt(dv); body.duration_unit=du; }
+  var note=$('p-note').value.trim(), ord=$('p-ord').value.trim(), cust=$('p-cust').value.trim();
+  if(note) body.note=note; if(ord) body.order_id=ord; if(cust) body.customer_id=cust;
+
+  var data = await kfetch(adminBase(), '/api/v1/provision', body);
+  if(!data) return;
+
+  var keys = data.key ? [data.key] : Array.isArray(data.keys) ? data.keys : [];
+  if(keys.length){
+    var box = $('kbox');
+    // remove placeholder
+    var em = box.querySelector('.k-empty'); if(em) em.remove();
+    keys.forEach(function(k){
+      var el = document.createElement('div');
+      el.className = 'k-item';
+      el.innerHTML = '<span>'+k+'</span><button class="btn b-gh b-xs">⎘</button>';
+      el.querySelector('button').onclick = function(e){
+        e.stopPropagation();
+        navigator.clipboard.writeText(k).then(function(){ toast('Copied!','ok'); });
+      };
+      el.onclick = function(){ fillKey(k); };
+      box.insertBefore(el, box.firstChild);
+    });
+    if(keys.length===1) fillKey(keys[0]);
+  }
+}
+
+// ── VERIFY ────────────────────────────────────────────────────────
+async function doVerify(){
+  if(!needApi()) return;
+  var hwid = $('v-hwid').value.trim() || $('hwid').value;
+  var ip   = $('v-ip').value.trim()   || $('myip').value;
+  var body = {
+    app_id:  app(),
+    key:     $('v-key').value.trim(),
+    hwid:    hwid,
+    version: $('v-ver').value.trim() || '1.0.0',
+  };
+  if(ip) body.ip = ip;
+  await kfetch(apiBase(), '/api/v1/' + curEp, body);
+}
+
+// ── KEY INFO ──────────────────────────────────────────────────────
+async function doKeyInfo(){
+  if(!needAdmin()) return;
+  var path = '/api/v1/keys/info?app_id=' + encodeURIComponent(app())
+           + '&key=' + encodeURIComponent($('i-key').value.trim());
+  await kfetch(adminBase(), path, null, 'GET');
+}
+
+// ── MANAGE ACTIONS ────────────────────────────────────────────────
+var ACT_PATHS = {
+  suspend: '/api/v1/keys/suspend', resume:  '/api/v1/keys/resume',
+  revoke:  '/api/v1/keys/revoke',  delete:  '/api/v1/keys/delete',
+};
+async function act(action){
+  if(!needAdmin()) return;
+  var body = {app_id:app(), key:mkey()};
+  var r = $('m-rsn').value.trim(); if(r) body.reason=r;
+  await kfetch(adminBase(), ACT_PATHS[action], body);
+}
+
+async function doUpdate(){
+  if(!needAdmin()) return;
+  var body = {app_id:app(), key:mkey()};
+  var note=$('m-note').value.trim(), dev=$('m-dev').value.trim(), sub=$('m-sub').value.trim(), cust=$('m-cust').value.trim();
+  if(note) body.note=note;
+  if(dev)  body.max_devices=parseInt(dev);
+  if(sub)  body.subscription_level=parseInt(sub);
+  if(cust){ try{body.custom_data=JSON.parse(cust);}catch(e){toast('Invalid JSON','err');return;} }
+  await kfetch(adminBase(), '/api/v1/keys/update', body);
+}
+
+function genSec(){
+  var a = new Uint8Array(24); crypto.getRandomValues(a);
+  var s = btoa(String.fromCharCode.apply(null,a)).replace(/[+/=]/g,'').slice(0,32);
+  $('m-sec').value = s; $('m-sec2').value = s;
+  navigator.clipboard.writeText(s).then(function(){ toast('Generated & copied', 'ok'); });
+}
+async function doSetSec(){
+  if(!needAdmin()) return;
+  var s1=$('m-sec').value, s2=$('m-sec2').value;
+  if(s1!==s2){ toast("Secrets don't match", 'err'); return; }
+  if(!s1){ toast('Secret is empty', 'err'); return; }
+  await kfetch(adminBase(), '/api/v1/keys/set-secret', {app_id:app(), key:mkey(), secret:s1});
+}
+async function doClearSec(){
+  if(!needAdmin()) return;
+  await kfetch(adminBase(), '/api/v1/keys/set-secret', {app_id:app(), key:mkey(), secret:null});
+}
+
+async function doExtend(){
+  if(!needAdmin()) return;
+  var body = {app_id:app(), key:mkey()};
+  var abs = $('m-eabs').value;
+  if(abs){ body.expires_at = new Date(abs).toISOString(); }
+  else {
+    var v=$('m-ev').value.trim(), u=$('m-eu').value;
+    if(!v){ toast('Enter duration', 'err'); return; }
+    body.duration_value=parseInt(v); body.duration_unit=u;
+  }
+  await kfetch(adminBase(), '/api/v1/keys/extend', body);
+}
+
+async function doResetDev(){
+  if(!needAdmin()) return;
+  await kfetch(adminBase(), '/api/v1/keys/reset-devices', {app_id:app(), key:mkey()});
+}
+async function doRemoveDev(){
+  if(!needAdmin()) return;
+  var body = {app_id:app(), key:mkey()};
+  var hw=$('m-dhw').value.trim(), idx=$('m-didx').value.trim();
+  if(hw) body.hwid=hw; if(idx!=='') body.device_index=parseInt(idx);
+  await kfetch(adminBase(), '/api/v1/keys/remove-device', body);
+}
+
+async function doTransfer(){
+  if(!needAdmin()) return;
+  var tgt = $('m-tapp').value.trim();
+  if(!tgt){ toast('Enter target app_id', 'err'); return; }
+  await kfetch(adminBase(), '/api/v1/keys/transfer', {app_id:app(), key:mkey(), target_app_id:tgt});
+}
+async function doClone(){
+  if(!needAdmin()) return;
+  var body = {app_id:app(), key:mkey()};
+  var nk=$('m-ckey').value.trim(); if(nk) body.new_key=nk;
+  await kfetch(adminBase(), '/api/v1/keys/clone', body);
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+loadHwid();
+detectIp();
+loadCfg();
+</script>
+</body>
+</html>
