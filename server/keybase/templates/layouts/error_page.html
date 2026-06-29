@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$error_code — $error_title</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <script>(function(){var t='classic';try{t=localStorage.getItem('keybase-theme')||'classic';}catch(e){}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <style>
+$admin_css
+  </style>
+</head>
+<body>
+<div class="err-page">
+  <div class="err-card">
+    <div class="err-eyebrow">$app_name</div>
+    <div class="err-num" aria-hidden="true">$error_code</div>
+    <div class="err-icon">$error_icon</div>
+    <h1 class="err-title">$error_title</h1>
+    <p class="err-desc">$error_desc</p>
+    <div class="err-actions">
+      $back_button
+      <a class="button primary-action" href="/admin">$home_label</a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var b=document.getElementById('err-back');
+  if(b){b.addEventListener('click',function(e){e.preventDefault();if(window.history.length>1){window.history.back();}else{window.location.href='/admin';}});}
+})();
+</script>
+</body>
+</html>
