@@ -26,7 +26,6 @@ It is designed for managing applications, license keys, HWID/device binding, ban
 key-base/
   Server/        Main backend, dashboard, config, data, and run scripts
   Builder/       Builder-related project files
-  Client-Test/   Sample/test client files
   test/          Test and scratch workspace
 ```
 
