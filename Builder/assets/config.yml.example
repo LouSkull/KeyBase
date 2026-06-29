@@ -1,0 +1,126 @@
+# Copy this file to `config.yml` and adjust values for your environment.
+server:
+  mode: combined
+  host: 127.0.0.1
+  port: 8080
+  admin_host: 127.0.0.1
+  admin_port: 8080
+  api_host: 127.0.0.1
+  api_port: 8080
+  allow_remote_admin: false
+  trust_proxy_headers: false
+cloudflare:
+  enabled: false
+  country_header: CF-IPCountry
+  restore_visitor_ip: true
+  require_https: true
+security:
+  session_hours: 12
+  confirm_minutes: 15
+  password_min_length: 6
+  login_attempts_per_10m: 10
+  register_attempts_per_hour: 8
+api:
+  verify_rate_limit_per_minute: 180
+  geoip_timeout_seconds: 2
+  allow_payload_ip_fallback: true
+  accepted_ip_headers: [CF-Connecting-IP, True-Client-IP, Fly-Client-IP, X-Real-IP, X-Client-IP, X-Cluster-Client-IP, X-Original-Forwarded-For, X-Forwarded-For, Forwarded]
+  accepted_country_headers: [CF-IPCountry, CloudFront-Viewer-Country, X-Vercel-IP-Country, Fastly-Geo-Country-Code, X-GeoIP-Country, X-Country-Code, X-Geo-Country, X-App-Country]
+  geoip_url: ""
+  public_base_url: http://127.0.0.1:8080
+admin:
+  public_base_url: http://127.0.0.1:8080
+database:
+  backend: sqlite
+  url: ""
+  sqlite_path: data/keybase.sqlite3
+  host: 127.0.0.1
+  port: ""
+  name: keybase
+  user: keybase
+  password: ""
+  ssl_mode: prefer
+  connect_timeout_seconds: 10
+backup:
+  directory: backups
+  auto_enabled: true
+  interval_minutes: 60
+  keep_last: 24
+  include_database: true
+  include_config: true
+  include_env: true
+provisioning:
+  enabled: false
+  header_name: X-KeyBase-Provision-Key
+  shared_token: change-this-provision-token
+  rate_limit_per_minute: 30
+  require_https: false
+  default_prefix: KB
+  default_max_devices: 1
+  default_duration_value: 30
+  default_duration_unit: days
+  max_batch_size: 20
+paths:
+  data_dir: data
+public_ip:
+  enabled: true
+  cache_seconds: 300
+  providers: [https://api.ipify.org, https://ifconfig.me/ip, https://ipv4.icanhazip.com]
+  override: ""
+ui:
+  update_banner_enabled: true
+protection:
+  mode: warn
+  anti_mode: warn
+  anti_vm: true
+  anti_vpn: true
+  anti_proxy: true
+  anti_debug: true
+  anti_tamper: true
+  anti_sandbox: true
+  ip_whitelist: []
+  hwid_whitelist: []
+  country_whitelist: []
+  ip_reputation_url: ""
+  ip_reputation_token: ""
+  ip_reputation_timeout_seconds: 2
+  ip_reputation_cache_seconds: 1800
+  free_ip_intel: true
+  tor_exit_list: true
+  tor_exit_list_url: https://check.torproject.org/torbulkexitlist
+  request_window_seconds: 10
+  too_fast_threshold: 20
+  risk_threshold: 71
+  signal_threshold: 2
+  challenge_threshold: 41
+  hard_challenge_threshold: 71
+  block_threshold: 71
+  risk_weights:
+    vpn: 25
+    proxy: 25
+    datacenter_asn: 20
+    tor: 40
+    suspicious_ua: 10
+    timezone_geo_mismatch: 15
+    too_fast_requests: 20
+    missing_js_fingerprint: 30
+    headless_browser: 25
+    automation_flags: 25
+    vm_or_emulator: 30
+    debugger: 40
+    low_behavior_entropy: 15
+    sandbox: 60
+    tamper: 80
+  vm_keywords: [vmware, virtualbox, vbox, hyper-v, kvm, qemu, xen, parallels, bhyve, bochs, seabios, ovmf, virtio, vmmouse, vmhgfs, vmtools, vmci, vboxguest, vboxsf, hv_vmbus, hv_utils, qxl, xenbus, prl_fs, 00:05:69, 00:0c:29, 00:1c:14, 00:50:56, 08:00:27, 00:15:5d, 00:16:3e, 00:1c:42, 52:54:00, mesa, swiftshader, llvmpipe, virgl, "software rasterizer", "virtual gpu"]
+  vpn_keywords: [vpn, wireguard, openvpn, private_relay, privacy, anonymous, mullvad, nordvpn, expressvpn, protonvpn, surfshark, windscribe, tunnelbear]
+  proxy_keywords: [proxy, tor, exit_node, relay, public_proxy, socks, residential_proxy, transparent_proxy, anonymous_proxy, crawler, bot, headless, webdriver, puppeteer, playwright, selenium, phantomjs]
+  suspicious_ua_keywords: [curl, wget, python, requests, aiohttp, scrapy, httpclient, go-http-client, headless, selenium, playwright, puppeteer, phantomjs]
+  datacenter_keywords: [datacenter, hosting, cloud, colo, amazon, aws, "google cloud", microsoft, azure, ovh, hetzner, digitalocean, vultr, linode, akamai, oracle, leaseweb, contabo, m247, datacamp, choopa, sharktech, gcore, alibaba, tencent, yandex, cloudflare]
+  debug_keywords: [debug, debugger, debugged, x64dbg, x32dbg, ollydbg, windbg, ida, ida64, ghidra, dnspy, ilspy, frida, cheatengine, "cheat engine", scylla]
+  tamper_keywords: [tamper, hook, inject, injection, patched, patch, integrity_failed, hash_mismatch, memory_modified, module_modified, signature_mismatch]
+  sandbox_keywords: [sandbox, analysis_env, automated_analysis, cuckoo, any.run, anyrun, hybrid-analysis, "joe sandbox", tria.ge, cape, malware, sample]
+subscriptions:
+  levels:
+webhooks:
+  timeout_seconds: 10
+  max_retries: 3
