@@ -20,15 +20,6 @@ It is designed for managing applications, license keys, HWID/device binding, ban
 - Risk-based protection for VPN, proxy, VM, debugger, and suspicious environments
 - SQLite, PostgreSQL, and MySQL/MariaDB support
 
-## Project Layout
-
-```text
-key-base/
-  Server/        Main backend, dashboard, config, data, and run scripts
-  Builder/       Builder-related project files
-  test/          Test and scratch workspace
-```
-
 ## Quick Start
 
 ### Windows
@@ -56,15 +47,6 @@ Main config file:
 Server/config.yml
 ```
 
-Important areas:
-
-- `server` - host, port, mode
-- `admin` - admin dashboard settings
-- `api` - client API and proxy/IP handling
-- `database` - SQLite/PostgreSQL/MySQL selection
-- `backup` - backup directory, retention, auto backup
-- `protection` - anti-VPN, anti-proxy, anti-VM, anti-debug risk settings
-
 ## Database Backends
 
 Supported backends:
@@ -88,16 +70,3 @@ Always create a backup before migrating databases.
 - Only trust proxy headers when clients cannot directly reach Key Base.
 - Keep secrets, API tokens, provisioning tokens, and backups private.
 - Start protection in `warn` mode before enabling strict blocking.
-
-## Documentation
-
-Open the dashboard FAQ/Documentation page for setup guides, API examples, Cloudflare/proxy notes, backup restore steps, and integration examples.
-
-## Release Notes
-
-See:
-
-```text
-RELEASE_NOTES.md
-```
-
